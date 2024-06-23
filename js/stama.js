@@ -6,7 +6,7 @@
  */
 class stama {
   constructor(persist = true) {
-    this.state = this.loadFromLocalStorage() || {};
+    this.state = this.getFromLocalStorage() || {};
     this.listeners = {};
     this.middlewares = [];
     this.previousState = {}; // Store previous states
@@ -43,7 +43,7 @@ class stama {
 
     // Persist to local storage if enabled
     if (this.persist) {
-      this.saveToLocalStorage();
+      this.setToLocalStorage();
     }
 
     // Debug mode logging
@@ -154,7 +154,7 @@ class stama {
   /**
    * Save the current state to local storage
    */
-  saveToLocalStorage(itemName = 'stama') {
+  setToLocalStorage(itemName = 'stama') {
     localStorage.setItem(itemName, JSON.stringify(this.state));
   }
 
@@ -162,7 +162,7 @@ class stama {
    * Load the state from local storage
    * @returns {Object|null} The state object or null if not found
    */
-  loadFromLocalStorage(itemName = 'stama') {
+  getFromLocalStorage(itemName = 'stama') {
     const state = localStorage.getItem(itemName);
     return state ? JSON.parse(state) : null;
   }
@@ -174,7 +174,7 @@ class stama {
   reset(initialState = {}) {
     this.state = initialState;
     if (this.persist) {
-      this.saveToLocalStorage();
+      this.setToLocalStorage();
     }
     for (const key in this.listeners) {
       if (this.listeners.hasOwnProperty(key)) {
@@ -221,7 +221,7 @@ class stama {
   remove(key) {
     delete this.state[key];
     if (this.persist) {
-      this.saveToLocalStorage();
+      this.setToLocalStorage();
     }
   }
 
@@ -231,7 +231,7 @@ class stama {
   clear() {
     this.state = {};
     if (this.persist) {
-      this.saveToLocalStorage();
+      this.setToLocalStorage();
     }
     // Clear history after clearing state
     this.clearHistory();
@@ -252,7 +252,7 @@ class stama {
   merge(newState) {
     this.state = { ...this.state, ...newState };
     if (this.persist) {
-      this.saveToLocalStorage();
+      this.setToLocalStorage();
     }
   }
 
@@ -302,7 +302,7 @@ class stama {
       this.state = { ...previousState };
 
       if (this.persist) {
-        this.saveToLocalStorage();
+        this.setToLocalStorage();
       }
 
       // Notify listeners for all keys that changed
@@ -324,7 +324,7 @@ class stama {
       this.state = { ...nextState };
 
       if (this.persist) {
-        this.saveToLocalStorage();
+        this.setToLocalStorage();
       }
 
       // Notify listeners for all keys that changed
@@ -342,6 +342,15 @@ class stama {
   clearHistory() {
     this.history = [];
     this.historyIndex = -1;
+  }
+
+  /**
+   * @param {*} index 
+   * @returns 
+   */
+
+  getFromHistory(index) {
+    return this.history[index];
   }
 
   /**

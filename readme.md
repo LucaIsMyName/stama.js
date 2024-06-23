@@ -94,66 +94,81 @@ stama.loadFromLocalStorage();
 
 ## API
 
+
 ```js
-  stama.get(key)
+stama.get(key)
 ```
-  Get the current value of a state by key.
+Get the current value of a state by key.
+
 ```js
-  stama.set(key, value)
+stama.set(key, value)
 ```
-  Set the value of a state and notify listeners.
+Set the value of a state and notify listeners.
+
 ```js
-  stama.subscribe(key, callback)
+stama.subscribe(key, callback)
 ```
-  Subscribe to changes of a specific state key.
+Subscribe to changes of a specific state key.
+
 ```js
-  stama.unsubscribe(key, callback)
+stama.unsubscribe(key, callback)
 ```
-  Unsubscribe from changes of a specific state key.
+Unsubscribe from changes of a specific state key.
+
 ```js
-  stama.syncStateWithUrl(keys)
+stama.syncStateWithUrl(keys)
 ```
-  Synchronize specified state keys with URL query parameters.
+Synchronize specified state keys with URL query parameters.
+
 ```js
-  stama.initFromUrl(keys)
+stama.initFromUrl(keys)
 ```
-  Initialize state from URL query parameters on page load.
+Initialize state from URL query parameters on page load.
+
 ```js
-  stama.setUrlParam(key, value)
+stama.setUrlParam(key, value)
 ```
-  Set a state value in the URL as a query parameter.
+Set a state value in the URL as a query parameter.
+
 ```js
-  stama.getUrlParam(key)
+stama.getUrlParam(key)
 ```
-  Get a state value from the URL query parameters.
+Get a state value from the URL query parameters.
+
 ```js
-  stama.undo()
+stama.undo()
 ```
-  Undo the last state change globally.
+Undo the last state change globally.
+
 ```js
-  stama.redo()
+stama.redo()
 ```
-  Redo the last undone state change globally.
+Redo the last undone state change globally.
+
 ```js
-  stama.use(middleware)
+stama.use(middleware)
 ```
-  Add a middleware function to intercept state changes.
+Add a middleware function to intercept state changes.
+
 ```js
-  stama.setPersist(enable)
+stama.setPersist(enable)
 ```
-  Enable or disable state persistence.
+Enable or disable state persistence.
+
 ```js
-  stama.saveToLocalStorage()
+stama.saveToLocalStorage()
 ```
-  Save the current state to local storage.
+Save the current state to local storage.
+
 ```js
-  stama.loadFromLocalStorage()
+stama.loadFromLocalStorage()
 ```
-  Load the state from local storage.
+Load the state from local storage.
+
 ```js
-  stama.clear()
+stama.clear()
 ```
-  Clear all state keys and values.
+Clear all state keys and values.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
