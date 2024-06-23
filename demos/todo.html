@@ -100,6 +100,11 @@
         stama.set('todos', []);
       }
 
+      // Set the Sideeffect intialState from the state
+      document.getElementById('sideeffect').textContent = JSON.stringify(stama.get('todos'), null, 2);
+      
+
+
       // Subscribe to the 'todos' state
       stama.subscribe('todos', renderTodos);
 

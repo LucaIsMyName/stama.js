@@ -55,6 +55,14 @@
     .stats p {
       margin: 5px 0;
     }
+
+    [data-weather-city="selected"] {
+      background-color: #000;
+      color: #fff;
+      &:hover {
+        background-color: #000;
+      }
+    }
   </style>
 </head>
 
@@ -110,7 +118,12 @@
       const button = document.createElement('button');
       button.classList.add('city');
       button.textContent = city.name;
-      button.addEventListener('click', () => fetchWeather(city.id));
+      button.addEventListener('click', () => {
+        fetchWeather(city.id);
+        document.querySelectorAll('button.city').forEach((btn) => btn.removeAttribute('data-weather-city'));
+        button.setAttribute('data-weather-city', 'selected');
+      });
+
       cityListElement.appendChild(button);
     });
 
@@ -122,6 +135,7 @@
           throw new Error('Weather data not available');
         }
         const data = await response.json();
+        console.log(data);
         const { main, clouds, wind } = data;
 
         // Update state and localStorage

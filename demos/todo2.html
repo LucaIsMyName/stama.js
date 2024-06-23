@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 300px;
+      text-align: center;
+    }
+
+    .todo-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .todo-item {
+      margin: 5px 0;
+    }
+
+    .buttons {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>To-Do List</h1>
+    <ul id="todoList" class="todo-list"></ul>
+    <div class="buttons">
+      <input type="text" id="taskInput" placeholder="Enter a task">
+      <button id="addTaskBtn">Add Task</button>
+      <button id="undoBtn" disabled>Undo</button>
+      <button id="redoBtn" disabled>Redo</button>
+      <button id="clearBtn">Clear All</button>
+    </div>
+  </div>
+  <script type="module">
+    import stama from '../js/stama.js'; // Adjust the path based on your project structure
+
+    const todoList = document.getElementById('todoList');
+    const taskInput = document.getElementById('taskInput');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Initialize state
+    stama.setPersist(true);
+
+    // Ensure 'tasks' and 'history' are initialized as arrays
+    if (!stama.get('tasks')) {
+      stama.set('tasks', []);
+    }
+
+    if (!stama.get('history')) {
+      stama.set('history', []);
+    }
+
+    // Render tasks
+    const renderTasks = () => {
+      const tasks = stama.get('tasks');
+
+      // Ensure tasks is always treated as an array
+      if (!Array.isArray(tasks)) {
+        stama.set('tasks', []);
+        return;
+      }
+
+      todoList.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.textContent = task;
+        li.className = 'todo-item';
+        todoList.appendChild(li);
+      });
+    };
+
+    // Update history and render tasks
+    const updateTasks = (tasks) => {
+      const history = stama.get('history');
+      history.push([...tasks]);
+      stama.set('history', history);
+      stama.set('tasks', tasks);
+    };
+
+    // Subscribe to tasks state changes
+    stama.subscribe('tasks', (tasks) => {
+      renderTasks();
+      updateUndoRedoBtns();
+    });
+
+    // Subscribe to history state changes
+    stama.subscribe('history', () => {
+      updateUndoRedoBtns();
+    });
+
+    // Middleware for logging state changes
+    const logMiddleware = (key, value) => {
+      console.log(`State changed: ${key} = ${JSON.stringify(value)}`);
+    };
+
+    // Use middleware
+    stama.use(logMiddleware);
+
+    // Function to add a task
+    const addTask = () => {
+      const tasks = stama.get('tasks');
+
+      // Ensure tasks is always treated as an array
+      if (!Array.isArray(tasks)) {
+        stama.set('tasks', []);
+        return;
+      }
+
+      tasks.push(taskInput.value);
+      stama.batchSet({ 'tasks': tasks, 'history': [] });
+      taskInput.value = '';
+    };
+
+    // Function to undo task addition
+    const undoTask = () => {
+      const history = stama.get('history');
+      if (history.length > 0) {
+        const tasks = history.pop();
+        stama.batchSet({ 'tasks': tasks, 'history': history });
+      }
+    };
+
+    // Function to redo task addition
+    const redoTask = () => {
+      const history = stama.get('history');
+      if (history.length > 0) {
+        const tasks = history[history.length - 1];
+        stama.batchSet({ 'tasks': tasks, 'history': history });
+      }
+    };
+
+    // Function to update undo/redo buttons
+    const updateUndoRedoBtns = () => {
+      const history = stama.get('history');
+      undoBtn.disabled = history.length === 0;
+      redoBtn.disabled = history.length === 0;
+    };
+
+    // Event listeners
+    addTaskBtn.addEventListener('click', addTask);
+    undoBtn.addEventListener('click', undoTask);
+    redoBtn.addEventListener('click', redoTask);
+    clearBtn.addEventListener('click', () => {
+      stama.set('tasks', []);
+    });
+
+    // Initial render
+    renderTasks();
+    updateUndoRedoBtns();
+
+  </script>
+</body>
+
+</html>

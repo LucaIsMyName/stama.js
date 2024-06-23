@@ -11,7 +11,7 @@ class stama {
     this.middlewares = [];
     this.previousState = {}; // Store previous states
     this.persist = persist;
-    this.debugMode = true;
+    this.debugMode = false;
     this.history = []; // Array to store state history
     this.historyIndex = -1; // Index to track current state in history
     if(this.debugMode) {

@@ -96,41 +96,69 @@ stama.loadFromLocalStorage();
 
 
 ```js
+/**
+ * @param {string} key
+*/
 stama.get(key)
 ```
 Get the current value of a state by key.
 
 ```js
+/**
+ * @param {string} key
+ * @param {any} value
+*/
 stama.set(key, value)
 ```
 Set the value of a state and notify listeners.
 
 ```js
+/**
+ * @param {string} key
+ * @param {Function} callback
+*/
 stama.subscribe(key, callback)
 ```
 Subscribe to changes of a specific state key.
 
 ```js
+/**
+ * @param {string} key
+ * @param {Function} callback
+*/
 stama.unsubscribe(key, callback)
 ```
 Unsubscribe from changes of a specific state key.
 
 ```js
+/**
+ * @param {Array<string>} keys
+*/
 stama.syncStateWithUrl(keys)
 ```
 Synchronize specified state keys with URL query parameters.
 
 ```js
+/**
+ * @param {Array<string>} keys
+*/
 stama.initFromUrl(keys)
 ```
 Initialize state from URL query parameters on page load.
 
 ```js
+/**
+ * @param {string} key
+ * @param {any} value
+*/
 stama.setUrlParam(key, value)
 ```
 Set a state value in the URL as a query parameter.
 
 ```js
+/**
+ * @param {string} key
+*/
 stama.getUrlParam(key)
 ```
 Get a state value from the URL query parameters.
@@ -146,22 +174,28 @@ stama.redo()
 Redo the last undone state change globally.
 
 ```js
+/**
+ * @param {Function} middleware
+*/
 stama.use(middleware)
 ```
 Add a middleware function to intercept state changes.
 
 ```js
+/**
+ * @param {boolean} enable
+*/
 stama.setPersist(enable)
 ```
 Enable or disable state persistence.
 
 ```js
-stama.saveToLocalStorage()
+stama.setToLocalStorage()
 ```
 Save the current state to local storage.
 
 ```js
-stama.loadFromLocalStorage()
+stama.getFromLocalStorage()
 ```
 Load the state from local storage.
 
@@ -169,9 +203,6 @@ Load the state from local storage.
 stama.clear()
 ```
 Clear all state keys and values.
-
-## Contributing
-Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
