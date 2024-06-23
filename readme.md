@@ -1,88 +1,163 @@
 # stama.js
 
-stama is a simple but useful JS state manager
+stama is a simple yet powerful state management library for JavaScript applications, designed with flexibility and ease of integration in mind. It provides essential state management functionalities along with advanced features like undo/redo capability.
 
-## methods
+
+## Features
+- Basic State Management: Set and get state values.
+- Persistence: Optionally persist state to local storage.
+- URL Integration: Sync state with URL query parameters for easy bookmarking and sharing.
+- Middleware Support: Add middleware functions to intercept state changes.
+- Undo/Redo: Navigate through previous states of the application.
+
+## Installation
+You can install stama via npm or yarn:
+
+```bash
+npm install stama
+# or
+yarn add stama
+
+```
+
+## Usage
+
+### Basic Usage
+```js
+import stama from 'stama';
+
+// Set initial state
+stama.set('counter', 0);
+
+// Subscribe to state changes
+stama.subscribe('counter', (value) => {
+  console.log('Counter changed:', value);
+});
+
+// Update state
+stama.set('counter', 1);
+
+```
+
+### URL Integration
 
 ```js
-stama.set(
-  key, 
-  value
-)
+// Sync state with URL parameters
+stama.syncStateWithUrl(['counter']);
+
+// Initialize state from URL on page load
+stama.initFromUrl(['counter']);
+
+// Update state and URL parameter
+stama.setUrlParam('counter', 2);
+
 ```
-sets or creates the value to a given key
+
+### Undo/Redo
 
 ```js
-stama.get(key)
+// Perform state changes
+stama.set('counter', 3);
+stama.set('counter', 4);
+
+// Undo the last state change
+stama.undo(); // counter will revert to 3
+
+// Redo the undone state change
+stama.redo(); // counter will revert to 4
+
 ```
-returns the state value of the given key
+
+### Middleware
 
 ```js
-stama.subscribe(key)
+// Add middleware to intercept state changes
+stama.use((key, value) => {
+  console.log(`State change intercepted: ${key} = ${value}`);
+});
+
 ```
-dynamically updates a value if it's changed by the user
+
+### Persistance
 
 ```js
-stama.unsubscribe(key)
+// Enable persistence to local storage
+stama.setPersist(true);
+
+// Save current state to local storage
+stama.saveToLocalStorage();
+
+// Load state from local storage
+stama.loadFromLocalStorage();
+
 ```
-doesnt update the value anymore if it's changed
+
+## API
 
 ```js
-stama.batchSet(
-  {
-    key1: value,
-    key2: value
-  }
-)
+  stama.get(key)
 ```
-sets more than 1 key/value at a time
-
+  Get the current value of a state by key.
 ```js
-stama.use(
-  middlewareFunction()
-)
+  stama.set(key, value)
 ```
-insert a middleware function
-
+  Set the value of a state and notify listeners.
 ```js
-stama.runMiddleware(
-  key, 
-  value
-  )
+  stama.subscribe(key, callback)
 ```
-run the middleware functions
-
+  Subscribe to changes of a specific state key.
 ```js
-stama.getPrevious(key)
+  stama.unsubscribe(key, callback)
 ```
-restores the previous value of the state
-
-
+  Unsubscribe from changes of a specific state key.
 ```js
-stama.undo(key)
+  stama.syncStateWithUrl(keys)
 ```
-undoes the changes made to the state
-
-
+  Synchronize specified state keys with URL query parameters.
 ```js
-stama.remove(key)
+  stama.initFromUrl(keys)
 ```
-removes the state key/value pair from the DOM/RAM
-
-
+  Initialize state from URL query parameters on page load.
 ```js
-stama.clear(key)
+  stama.setUrlParam(key, value)
 ```
-undoes the value of the given key
-
-
+  Set a state value in the URL as a query parameter.
 ```js
-stama.getAllKeys()
+  stama.getUrlParam(key)
 ```
-returns all key/value state pairs
-
-
+  Get a state value from the URL query parameters.
 ```js
-stama.merge(newState)
+  stama.undo()
 ```
-pushes a new state while storing the old one
+  Undo the last state change globally.
+```js
+  stama.redo()
+```
+  Redo the last undone state change globally.
+```js
+  stama.use(middleware)
+```
+  Add a middleware function to intercept state changes.
+```js
+  stama.setPersist(enable)
+```
+  Enable or disable state persistence.
+```js
+  stama.saveToLocalStorage()
+```
+  Save the current state to local storage.
+```js
+  stama.loadFromLocalStorage()
+```
+  Load the state from local storage.
+```js
+  stama.clear()
+```
+  Clear all state keys and values.
+
+## Contributing
+Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
+

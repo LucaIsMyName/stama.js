@@ -1,6 +1,8 @@
+
+
 /**
  * @class stama
- * @description A simple state management system
+ * @description A simple state management system with undo/redo support
  */
 class stama {
   constructor(persist = true) {
@@ -10,6 +12,8 @@ class stama {
     this.previousState = {}; // Store previous states
     this.persist = persist;
     this.debugMode = false;
+    this.history = []; // Array to store state history
+    this.historyIndex = -1; // Index to track current state in history
   }
 
   /**
@@ -22,20 +26,32 @@ class stama {
   }
 
   /**
-   * Set the value of a state and notify listeners
+   * Set the value of a state and notify listeners, and add to history
    * @param {string} key - The state key
    * @param {*} value - The new value of the state
    */
   set(key, value) {
+    // Save current state to history before setting new value
+    const currentState = { ...this.state };
+    this.history.push(currentState);
+    this.historyIndex++;
+
+    // Update state with new value
     this.previousState[key] = this.state[key];
     this.runMiddlewares(key, value);
     this.state[key] = value;
+
+    // Persist to local storage if enabled
     if (this.persist) {
       this.saveToLocalStorage();
     }
+
+    // Debug mode logging
     if (this.debugMode) {
       console.log(`State changed: ${key} = ${value}`);
     }
+
+    // Notify listeners
     if (this.listeners[key]) {
       this.listeners[key].forEach((callback) => callback(value));
     }
@@ -52,7 +68,6 @@ class stama {
     window.history.pushState({}, '', url);
     this.set(key, value);
     this.debugMode ? console.log(`set url param: ${key} = ${value}`) : null;
-
   }
 
   /**
@@ -166,6 +181,8 @@ class stama {
         this.listeners[key].forEach((callback) => callback(initialState[key]));
       }
     }
+    // Clear history after reset
+    this.clearHistory();
   }
 
   /**
@@ -216,6 +233,8 @@ class stama {
     if (this.persist) {
       this.saveToLocalStorage();
     }
+    // Clear history after clearing state
+    this.clearHistory();
   }
 
   /**
@@ -274,20 +293,55 @@ class stama {
   }
 
   /**
-   * Undo the last state change for a specific key
-   * @param {string} key - The state key
+   * Undo the last state change globally
    */
-  undo(key) {
-    if (this.previousState.hasOwnProperty(key)) {
-      this.state[key] = this.previousState[key];
-      delete this.previousState[key];
+  undo() {
+    if (this.historyIndex > 0) {
+      this.historyIndex--;
+      const previousState = this.history[this.historyIndex];
+      this.state = { ...previousState };
+
       if (this.persist) {
         this.saveToLocalStorage();
       }
-      if (this.listeners[key]) {
-        this.listeners[key].forEach((callback) => callback(this.state[key]));
-      }
+
+      // Notify listeners for all keys that changed
+      Object.keys(previousState).forEach((key) => {
+        if (this.listeners[key]) {
+          this.listeners[key].forEach((callback) => callback(previousState[key]));
+        }
+      });
     }
+  }
+
+  /**
+   * Redo the last undone state change globally
+   */
+  redo() {
+    if (this.historyIndex < this.history.length - 1) {
+      this.historyIndex++;
+      const nextState = this.history[this.historyIndex];
+      this.state = { ...nextState };
+
+      if (this.persist) {
+        this.saveToLocalStorage();
+      }
+
+      // Notify listeners for all keys that changed
+      Object.keys(nextState).forEach((key) => {
+        if (this.listeners[key]) {
+          this.listeners[key].forEach((callback) => callback(nextState[key]));
+        }
+      });
+    }
+  }
+
+  /**
+   * Clear history and reset history index
+   */
+  clearHistory() {
+    this.history = [];
+    this.historyIndex = -1;
   }
 
   /**
