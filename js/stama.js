@@ -11,9 +11,12 @@ class stama {
     this.middlewares = [];
     this.previousState = {}; // Store previous states
     this.persist = persist;
-    this.debugMode = false;
+    this.debugMode = true;
     this.history = []; // Array to store state history
     this.historyIndex = -1; // Index to track current state in history
+    if(this.debugMode) {
+      console.log('stama initialized', this.state);
+    }
   }
 
   /**
@@ -368,6 +371,8 @@ class stama {
   setPersist(enable) {
     this.persist = enable;
   }
+
+ 
 }
 
 export default new stama();

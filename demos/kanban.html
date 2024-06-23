@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanban Board</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    #board {
+      display: flex;
+      justify-content: space-around;
+      width: 80%;
+      margin-top: 20px;
+    }
+    .column {
+      width: 30%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .column h2 {
+      text-align: center;
+    }
+    .task {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      cursor: move;
+    }
+    #controls {
+      margin-top: 20px;
+    }
+    button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kanban Board</h1>
+  <div id="controls">
+    <input type="text" id="taskInput" placeholder="New Task">
+    <button id="addTaskButton">Add Task</button>
+    <button id="undoButton">Undo</button>
+    <button id="redoButton">Redo</button>
+  </div>
+  <div id="board">
+    <div class="column" data-status="todo">
+      <h2>To Do</h2>
+      <div class="task-list" id="todo"></div>
+    </div>
+    <div class="column" data-status="in-progress">
+      <h2>In Progress</h2>
+      <div class="task-list" id="in-progress"></div>
+    </div>
+    <div class="column" data-status="done">
+      <h2>Done</h2>
+      <div class="task-list" id="done"></div>
+    </div>
+  </div>
+  <script type="module">
+    import stama from '../js/stama.js';
+
+    const taskInput = document.getElementById('taskInput');
+    const addTaskButton = document.getElementById('addTaskButton');
+    const undoButton = document.getElementById('undoButton');
+    const redoButton = document.getElementById('redoButton');
+    const todoList = document.getElementById('todo');
+    const inProgressList = document.getElementById('in-progress');
+    const doneList = document.getElementById('done');
+
+    stama.setPersist(true);
+
+    // Initialize the tasks state
+    if (!stama.get('tasks')) {
+      stama.set('tasks', { todo: [], inProgress: [], done: [] });
+    }
+
+    const initialTasks = stama.get('tasks');
+    renderTasks(initialTasks);
+
+    addTaskButton.addEventListener('click', () => {
+      const task = taskInput.value.trim();
+      if (task) {
+        const tasks = { ...stama.get('tasks') };
+        tasks.todo.push(task);
+        stama.set('tasks', tasks);
+        taskInput.value = '';
+      }
+    });
+
+    undoButton.addEventListener('click', () => {
+      stama.undo();
+    });
+
+    redoButton.addEventListener('click', () => {
+      stama.redo();
+    });
+
+    function renderTasks(tasks) {
+      todoList.innerHTML = '';
+      inProgressList.innerHTML = '';
+      doneList.innerHTML = '';
+      tasks.todo.forEach(task => createTaskElement(task, 'todo', todoList));
+      tasks.inProgress.forEach(task => createTaskElement(task, 'in-progress', inProgressList));
+      tasks.done.forEach(task => createTaskElement(task, 'done', doneList));
+    }
+
+    function createTaskElement(task, status, list) {
+      const taskElement = document.createElement('div');
+      taskElement.className = 'task';
+      taskElement.textContent = task;
+      taskElement.draggable = true;
+      taskElement.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ task, status }));
+      });
+      list.appendChild(taskElement);
+    }
+
+    document.querySelectorAll('.task-list').forEach(list => {
+      list.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+      list.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const { task, status } = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const newStatus = e.currentTarget.parentNode.dataset.status;
+        if (status !== newStatus) {
+          const tasks = { ...stama.get('tasks') };
+          tasks[status] = tasks[status].filter(t => t !== task);
+          tasks[newStatus].push(task);
+          stama.set('tasks', tasks);
+        }
+      });
+    });
+
+    stama.subscribe('tasks', renderTasks);
+  </script>
+</body>
+</html>

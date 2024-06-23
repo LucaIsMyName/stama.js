@@ -79,6 +79,7 @@
     <ul id="project-tree">
       <!-- Project Tree Here -->
     </ul>
+    <button onclick="addProject()">Add Project</button>
   </header>
   <section>
     <main id="open-page">
@@ -124,6 +125,9 @@
           projectTree.appendChild(li);
         });
       }
+      
+      // FUNCTION TO ADD NEWW PROJECT AND UPDATE THE STATE
+     
 
       // Function to open a project
       function openProject(projectId) {
@@ -150,7 +154,11 @@
           const a = document.createElement('a');
           a.href = `#${header.id}`;
           a.textContent = header.textContent;
+          // Get the header level and add appropriate margin
+          const level = parseInt(header.tagName[1]);
+          a.setAttribute('data-toc-level', level)
           toc.appendChild(a);
+         
         });
       }
 

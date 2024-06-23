@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.3.2/markdown-it.min.css">
+  <style>
+    body {
+      display: flex;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #sidebar,
+    #editor,
+    #toc {
+      padding: 10px;
+    }
+
+    #sidebar {
+      width: 20%;
+      border-right: 1px solid #ccc;
+      overflow-y: auto;
+    }
+
+    #editor {
+      width: 60%;
+      padding: 10px;
+    }
+
+    #toc {
+      width: 20%;
+      border-left: 1px solid #ccc;
+      overflow-y: auto;
+    }
+
+    #notes {
+      list-style: none;
+      padding: 0;
+    }
+
+    #notes li {
+      margin: 5px 0;
+      cursor: pointer;
+    }
+
+    #notes li.selected {
+      background-color: #e0e0e0;
+    }
+
+    #editor textarea {
+      width: 100%;
+      height: 70vh;
+    }
+
+    #preview {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 70vh;
+      overflow-y: auto;
+    }
+
+    .note-button {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="sidebar">
+    <button id="addNoteButton" class="note-button">Add Note</button>
+    <ul id="notes"></ul>
+  </div>
+  <div id="editor">
+    <div id="editMode">
+      <textarea id="noteContent"></textarea>
+      <button id="saveNoteButton" class="note-button">Save</button>
+      <button id="exportNoteButton" class="note-button">Export</button>
+    </div>
+    <div id="previewMode" style="display:none;">
+      <div id="preview"></div>
+      <button id="editNoteButton" class="note-button">Edit</button>
+      <button id="exportNoteButton" class="note-button">Export</button>
+    </div>
+  </div>
+  <div id="toc">
+    <h2>Table of Contents</h2>
+    <ul id="tocContent"></ul>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.3.2/markdown-it.min.js"></script>
+  <script type="module">
+    import stama from '../js/stama.js';
+
+    const md = window.markdownit();
+
+    const addNoteButton = document.getElementById('addNoteButton');
+    const saveNoteButton = document.getElementById('saveNoteButton');
+    const exportNoteButtons = document.querySelectorAll('#exportNoteButton');
+    const editNoteButton = document.getElementById('editNoteButton');
+    const noteContent = document.getElementById('noteContent');
+    const notesList = document.getElementById('notes');
+    const preview = document.getElementById('preview');
+    const tocContent = document.getElementById('tocContent');
+    const editMode = document.getElementById('editMode');
+    const previewMode = document.getElementById('previewMode');
+
+    stama.setPersist(true);
+
+    if (!stama.get('notes')) {
+      stama.set('notes', []);
+    }
+
+    if (!stama.get('selectedNote')) {
+      stama.set('selectedNote', null);
+    }
+
+    const renderNotesList = () => {
+      const notes = stama.get('notes');
+      notesList.innerHTML = '';
+      notes.forEach((note, index) => {
+        const li = document.createElement('li');
+        li.textContent = note.title || `Note ${index + 1}`;
+        li.className = stama.get('selectedNote') === index ? 'selected' : '';
+        li.addEventListener('click', () => {
+          stama.set('selectedNote', index);
+          renderEditor();
+        });
+        notesList.appendChild(li);
+      });
+    };
+
+    const renderEditor = () => {
+      const selectedNote = stama.get('selectedNote');
+      const notes = stama.get('notes');
+      if (selectedNote !== null && notes[selectedNote]) {
+        noteContent.value = notes[selectedNote].content || '';
+        showEditMode();
+      } else {
+        noteContent.value = '';
+      }
+    };
+
+    const renderPreview = () => {
+      const selectedNote = stama.get('selectedNote');
+      const notes = stama.get('notes');
+      if (selectedNote !== null && notes[selectedNote]) {
+        preview.innerHTML = md.render(notes[selectedNote].content || '');
+        renderTOC();
+        showPreviewMode();
+      }
+    };
+
+    const renderTOC = () => {
+      tocContent.innerHTML = '';
+      const headers = preview.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      headers.forEach(header => {
+        
+        const li = document.createElement('li');
+        // Get the header level
+        const level = parseInt(header.tagName[1]);
+        li.textContent = header.textContent;
+        li.setAttribute("data-toc-level", level);
+        tocContent.appendChild(li);
+      });
+    };
+
+    const showEditMode = () => {
+      editMode.style.display = 'block';
+      previewMode.style.display = 'none';
+    };
+
+    const showPreviewMode = () => {
+      editMode.style.display = 'none';
+      previewMode.style.display = 'block';
+    };
+
+    const exportNote = () => {
+      const selectedNote = stama.get('selectedNote');
+      const notes = stama.get('notes');
+      if (selectedNote !== null && notes[selectedNote]) {
+        const noteContent = notes[selectedNote].content;
+        const blob = new Blob([noteContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = notes[selectedNote].title ? `${notes[selectedNote].title}.md` : `Note${selectedNote + 1}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    };
+
+    addNoteButton.addEventListener('click', () => {
+      const notes = [...stama.get('notes'), { title: '', content: '' }];
+      stama.set('notes', notes);
+      stama.set('selectedNote', notes.length - 1);
+    });
+
+    saveNoteButton.addEventListener('click', () => {
+      const notes = [...stama.get('notes')];
+      const selectedNote = stama.get('selectedNote');
+      if (selectedNote !== null) {
+        notes[selectedNote].content = noteContent.value;
+        notes[selectedNote].title = noteContent.value.split('\n')[0] || `Note ${selectedNote + 1}`;
+        stama.set('notes', notes);
+        renderPreview(); // Update the preview after saving
+      }
+      showPreviewMode(); // Switch to preview mode after saving
+    });
+
+
+    exportNoteButtons.forEach((button) => {
+      button.addEventListener('click', exportNote);
+    });
+
+    editNoteButton.addEventListener('click', () => {
+      showEditMode();
+    });
+
+    stama.subscribe('notes', renderNotesList);
+    stama.subscribe('selectedNote', () => {
+      renderEditor();
+      renderPreview();
+    });
+
+    renderNotesList();
+    renderEditor();
+  </script>
+</body>
+
+</html>
