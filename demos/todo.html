@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #app {
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    input {
+      width: 70%;
+      padding: 5px;
+    }
+
+    button {
+      padding: 5px 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #f9f9f9;
+      margin-top: 5px;
+    }
+
+    li:nth-child(even) {
+      background-color: #efefef;
+    }
+
+    button.remove-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    button.remove-btn:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <h1>To-Do List</h1>
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="Enter a new to-do" required>
+      <button type="submit">Add To-Do</button>
+    </form>
+    <ul id="todo-list"></ul>
+
+    <hr>
+    <p>State</p>
+    <pre id="sideeffect">
+    </pre>
+  </div>
+  <!-- <script type="module" src="../js/state.js"></script> -->
+  <script type="module">
+    import stama from '../js/stama.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const todoForm = document.getElementById('todo-form');
+      const todoInput = document.getElementById('todo-input');
+      const todoList = document.getElementById('todo-list');
+
+      // Initialize the state for todos if not already set
+      if (!stama.get('todos')) {
+        stama.set('todos', []);
+      }
+
+      // Subscribe to the 'todos' state
+      stama.subscribe('todos', renderTodos);
+
+      // Handle form submission
+      todoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const todoText = todoInput.value.trim();
+        if (todoText !== '') {
+          addTodo(todoText);
+          todoInput.value = '';
+        }
+      });
+
+      /**
+       * Add a new to-do
+       * @param {string} todoText - The text of the new to-do
+       */
+      function addTodo(todoText) {
+        const todos = stama.get('todos');
+        stama.set('todos', [...todos, todoText]);
+      }
+
+      /**
+       * Remove a to-do
+       * @param {number} index - The index of the to-do to remove
+       */
+      function removeTodo(index) {
+        const todos = stama.get('todos');
+        todos.splice(index, 1);
+        stama.set('todos', [...todos]);
+      }
+
+      /**
+       * Render the to-dos in the UI
+       * @param {string[]} todos - The list of to-dos
+       */
+      function renderTodos(todos) {
+        todoList.innerHTML = '';
+        todos.forEach((todo, index) => {
+          const li = document.createElement('li');
+          li.textContent = todo;
+
+          const removeButton = document.createElement('button');
+          removeButton.textContent = 'Remove';
+          removeButton.classList.add('remove-btn');
+          removeButton.addEventListener('click', () => removeTodo(index));
+
+          li.appendChild(removeButton);
+          todoList.appendChild(li);
+        });
+      }
+
+      // Initial render
+      renderTodos(stama.get('todos'));
+
+      // Side effect
+      stama.subscribe('todos', (todos) => {
+        document.getElementById('sideeffect').textContent = JSON.stringify(todos, null, 2);
+      });
+    });
+
+
+  </script>
+</body>
+
+</html>

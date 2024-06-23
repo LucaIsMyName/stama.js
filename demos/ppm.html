@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown.js/0.5.0/markdown.min.js"
+    integrity="sha512-kaDP6dcDG3+X87m9SnhyJzwBMKrYnd2tLJjGdBrZ9yEL8Zcl2iJRsPwylLkbd2g3QC5S8efV3sgwI5r73U0HnA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    /* PPM Styles here */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    header {
+      background: #f5f5f5;
+      padding: 10px;
+      min-width: 200px;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    header ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    header ul li {
+      cursor: pointer;
+      padding: 5px 0;
+    }
+
+    section {
+      display: flex;
+      flex: 1;
+    }
+
+    main {
+      flex: 3;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    aside {
+      flex: 1;
+      padding: 20px;
+      background: #f9f9f9;
+      overflow-y: auto;
+    }
+
+    aside a {
+      display: block;
+      padding: 5px 0;
+      text-decoration: none;
+      color: #333;
+    }
+
+    footer {
+      background: #f5f5f5;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>done</h1>
+    <ul id="project-tree">
+      <!-- Project Tree Here -->
+    </ul>
+  </header>
+  <section>
+    <main id="open-page">
+      <!-- Currently Open Page here -->
+    </main>
+    <aside id="toc">
+      <!-- table of contents for currently open page here -->
+    </aside>
+  </section>
+  <script type="module">
+    // Mock DB Object
+    const db = {
+      projects: [
+        {
+          id: '1',
+          title: 'App One',
+          content: '# App\n## Section 1\nContent here.\n## Section 2\nMore content here.'
+        },
+        {
+          id: '2',
+          title: 'Project 2',
+          content: '# Project 2\n## Section 1\nContent here.\n## Section 2\nMore content here.'
+        },
+      ],
+    };
+
+    // State Manager
+    import stama from '../js/stama.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const projectTree = document.getElementById('project-tree');
+      const openPage = document.getElementById('open-page');
+      const toc = document.getElementById('toc');
+
+      // Function to render project tree
+      function renderProjectTree() {
+        projectTree.innerHTML = '';
+        db.projects.forEach((project) => {
+          const li = document.createElement('li');
+          li.textContent = project.title;
+          li.dataset.projectId = project.id;
+          li.addEventListener('click', () => openProject(project.id));
+          projectTree.appendChild(li);
+        });
+      }
+
+      // Function to open a project
+      function openProject(projectId) {
+        const project = db.projects.find((p) => p.id === projectId);
+        if (project) {
+          stama.set('currentProject', projectId);
+          renderOpenPage(project.content);
+          renderToc(project.content);
+        }
+      }
+
+      // Function to render the open page
+      function renderOpenPage(content) {
+        openPage.innerHTML = markdown.toHTML(content); // Assuming marked.js is used for markdown rendering
+      }
+
+      // Function to render the table of contents
+      function renderToc(content) {
+        toc.innerHTML = '';
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = markdown.toHTML(content);
+        const headers = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headers.forEach((header) => {
+          const a = document.createElement('a');
+          a.href = `#${header.id}`;
+          a.textContent = header.textContent;
+          toc.appendChild(a);
+        });
+      }
+
+      // Initialize the project tree
+      renderProjectTree();
+
+      // Check for saved state and open the project if exists
+      const savedProjectId = stama.get('currentProject');
+      if (savedProjectId) {
+        openProject(savedProjectId);
+      }
+    });
+  </script>
+</body>
+
+</html>

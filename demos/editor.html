@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown.js/0.5.0/markdown.min.js"
+    integrity="sha512-kaDP6dcDG3+X87m9SnhyJzwBMKrYnd2tLJjGdBrZ9yEL8Zcl2iJRsPwylLkbd2g3QC5S8efV3sgwI5r73U0HnA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    :root {
+      --headline-size: 1.5rem;
+      --header-spacing: 1rem;
+      --header-height: calc(var(--headline-size) + var(--header-spacing) * 2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    :where(h1, h2, h3, h4, h5, h6, p, small, pre, code) {
+      margin: 0;
+      padding: 0;
+    }
+
+    :where(h1, h2, h3, h4, h5, h6) {
+      font-size: var(--headline-size);
+      line-height: 1;
+    }
+
+    header h2 {
+      margin: 0;
+      padding: var(--header-spacing);
+      /* background-color: #f5f5f5; */
+      /* border-bottom: 1px solid #ccc; */
+      font-size: var(--headline-size);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #app {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      /* padding: 1rem; */
+
+      &>* {
+        flex: 1 1 0%;
+      }
+    }
+
+    form {
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      display: block;
+      height: calc(100vh - var(--header-height));
+      /* width: 45%; */
+      flex: 1 1 0%;
+      /* height: 80vh; */
+      padding: 10px;
+      box-sizing: border-box;
+      border:none;
+      margin-inline: calc(var(--header-spacing) / 2);
+    }
+
+    #preview {
+      /* width: 45%; */
+      flex: 1 1 0%;
+      /* height: 80vh; */
+      padding: 10px;
+      box-sizing: border-box;
+      /* border: 1px solid #ccc; */
+      overflow-y: auto;
+      margin-inline: calc(var(--header-spacing) / 2);
+      height: calc(100vh - var(--header-height));
+
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <section>
+      <header>
+        <h2>Editor</h2>
+      </header>
+      <form id="editor">
+        <textarea id="editor-input" placeholder="Enter your MD/HTML here"></textarea>
+      </form>
+    </section>
+    <section>
+      <div>
+        <header>
+          <h2>Preview</h2>
+        </header>
+        <div id="preview">
+          <!-- User input live preview here -->
+        </div>
+      </div>
+    </section>
+  </div>
+  <script type="module">
+    import stama from '../js/stama.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const editorInput = document.getElementById('editor-input');
+      const preview = document.getElementById('preview');
+
+      // Function to render the preview
+      function renderPreview(content) {
+        preview.innerHTML = markdown.toHTML(content);
+      }
+
+      // Handle editor input
+      editorInput.addEventListener('input', (e) => {
+        const content = e.target.value;
+        stama.set('editorContent', content);
+        stama.setUrlParam('content', content);
+      });
+
+      // Check for content parameter in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialContent = urlParams.get('content');
+      if (initialContent) {
+        stama.set('editorContent', initialContent);
+      }
+
+      // Subscribe to changes in the editorContent state
+      stama.subscribe('editorContent', (content) => {
+        editorInput.value = content;
+        renderPreview(content);
+      });
+
+      // Initial render
+      const currentContent = stama.get('editorContent');
+      editorInput.value = currentContent;
+      renderPreview(currentContent);
+    });
+  </script>
+</body>
+
+</html>
