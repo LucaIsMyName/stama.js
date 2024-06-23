@@ -41,8 +41,8 @@
     <div class="buttons">
       <input type="text" id="taskInput" placeholder="Enter a task">
       <button id="addTaskBtn">Add Task</button>
-      <button id="undoBtn" disabled>Undo</button>
-      <button id="redoBtn" disabled>Redo</button>
+      <button id="undoBtn">Undo</button>
+      <button id="redoBtn">Redo</button>
       <button id="clearBtn">Clear All</button>
     </div>
   </div>
@@ -144,6 +144,7 @@
       if (history.length > 0) {
         const tasks = history[history.length - 1];
         stama.batchSet({ 'tasks': tasks, 'history': history });
+        console.log('Redo:', tasks);
       }
     };
 
