@@ -171,12 +171,17 @@
     }
 
     #editor textarea {
-      width: 100%;
+      display: block;
+      max-width: 768px;
+      width:100%;
+      margin: 0 auto;
       height: calc(100vh - var(--controls-height));
     }
 
     #preview {
+      max-width: 768px;
       /* border: 1px solid #ccc; */
+      margin: 0 auto;
       padding: 10px;
       height: calc(100vh - var(--controls-height));
       overflow-y: auto;
