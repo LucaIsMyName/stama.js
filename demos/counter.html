@@ -16,6 +16,8 @@
       <button id="decrementBtn">Decrement</button>
       <button id="resetBtn">Reset</button>
     </div>
+    <p id="countClicked"></p>
+
   </main>
   <script type="module">
     import stama from '../js/stama.js'; // Adjust the path based on your project structure
@@ -33,6 +35,9 @@
     const incrementBtn = document.getElementById('incrementBtn');
     const decrementBtn = document.getElementById('decrementBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const countClicked = document.getElementById('countClicked');
+
+    stama.set('counterClicked', 0);
 
     // Function to render count
     const renderCount = () => {
@@ -42,6 +47,10 @@
 
     // Subscribe to counter state changes
     stama.subscribe('counter', renderCount);
+    stama.subscribe('counter', () => {
+      stama.set('counterClicked', stama.get('counterClicked') + 1);
+      countClicked.textContent = stama.get('counterClicked');
+    });
 
     // Event listeners
     incrementBtn.addEventListener('click', () => {
@@ -60,6 +69,8 @@
 
     // Initial render
     renderCount();
+
+    console.log(stama);
 
   </script>
 </body>
