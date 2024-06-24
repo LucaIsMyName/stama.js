@@ -14,7 +14,7 @@ class stama {
     this.debugMode = false;
     this.history = []; // Array to store state history
     this.historyIndex = -1; // Index to track current state in history
-    if(this.debugMode) {
+    if (this.debugMode) {
       console.log('stama initialized', this.state);
     }
   }
@@ -59,6 +59,7 @@ class stama {
       this.listeners[key].forEach((callback) => callback(value));
     }
   }
+
 
   /**
    * Set a state value in the URL as a query parameter
@@ -174,10 +175,10 @@ class stama {
    * Reset the state to an initial value or clear it
    * @param {Object} initialState - The initial state to reset to
    */
-  reset(initialState = {}) {
+  reset(initialState = {}, fromLocalStoreObject = 'stama') {
     this.state = initialState;
     if (this.persist) {
-      this.setToLocalStorage();
+      this.setToLocalStorage(fromLocalStoreObject);
     }
     for (const key in this.listeners) {
       if (this.listeners.hasOwnProperty(key)) {
@@ -372,7 +373,7 @@ class stama {
     this.persist = enable;
   }
 
- 
+
 }
 
 export default new stama();

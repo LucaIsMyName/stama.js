@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stama Tests</title>
+</head>
+
+<body>
+  <script type="module">
+    // Test stama.set() & stama.get()-->
+    import stama from '../js/stama.js';
+
+    stama.subscribe('testState', () => {
+      console.log('Subscribed to TestState: ', stama.get('testState'))
+    });
+
+    stama.set('testState', 1)
+    console.log(stama.get('testState'));
+
+    stama.set('testState', 'string');
+    console.log(stama.get('testState'));
+
+    stama.set('testState', {
+      myObjKey1: "Val1",
+      myObjKey2: "Val2"
+    });
+    console.log(stama.get('testState'));
+
+    stama.set('testState', ["Array Item Level 1", ["Array Item 2"]]);
+    console.log(stama.get('testState'));
+
+    stama.set('testState',
+      [
+        { name: "Luca", id: 123 },
+        {
+          name: "Sarah", id: 234, array: [
+            1, 2, 3
+          ]
+        }
+      ]
+    );
+    console.log(stama.get('testState'));
+    
+    console.log('stama.undo() test:');
+    stama.undo('testState');
+    console.log(stama.get('testState'));
+    stama.undo('testState');
+    console.log(stama.get('testState'));
+    stama.undo('testState');
+    console.log(stama.get('testState'));
+      
+    console.log('stama.redo() test:');
+    stama.redo('testState');
+    console.log(stama.get('testState'));
+    stama.redo('testState');
+    console.log(stama.get('testState'));
+    stama.redo('testState');
+    console.log(stama.get('testState'));
+
+    stama.set('tesState2', 2);
+    console.log(stama.get('tesState2'));
+    stama.set('tesState2', 3);
+    console.log(stama.get('tesState2'));
+    stama.undo();
+    console.log(stama.get('tesState2'));
+
+  </script>
+</body>
+
+</html>

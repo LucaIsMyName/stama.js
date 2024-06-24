@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mail GUI with Stama</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+  <div class="mx-auto">
+    <div class="grid grid-cols-12 h-screen">
+      <!-- Folders -->
+      <div class="col-span-2 bg-white p-4 shadow">
+        <ul id="folderList" class="space-y-2"></ul>
+      </div>
+      <!-- Mail List -->
+      <div class="col-span-4 bg-white p-4 shadow">
+        <ul id="mailList" class="space-y-2"></ul>
+      </div>
+      <!-- Mail Content -->
+      <div class="col-span-6 bg-white p-4 shadow">
+        <div id="mailContent"></div>
+      </div>
+    </div>
+    <!-- Drafts Section -->
+    <div class="mt-4 bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-4">Drafts</h2>
+      <textarea id="draftContent" class="w-full p-2 border rounded" placeholder="Write your draft here..."></textarea>
+      <button id="saveDraft" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Save Draft</button>
+      <button id="undo" class="mt-2 bg-gray-500 text-white px-4 py-2 rounded">Undo</button>
+      <button id="redo" class="mt-2 bg-gray-500 text-white px-4 py-2 rounded">Redo</button>
+    </div>
+  </div>
+  <script type="module">
+    import stama from '../js/stama.js'; // Replace with the actual path to your stama file
+    stama.setPersist(true);
+
+    // Mock Database
+    const mockDB = {
+      folders: ['Inbox', 'Sent', 'Drafts', 'Trash'],
+      mails: {
+        Inbox: [{ id: 1, subject: 'Welcome!', content: 'Welcome to our service.', drafts: [] }],
+        Sent: [{ id: 2, subject: 'Meeting Confirmation', content: 'Your meeting is confirmed.', drafts: [] }],
+        Drafts: [{ id: 3, subject: 'Draft Mail', content: 'This is a draft.', drafts: [] }],
+        Trash: []
+      }
+    };
+
+    // Initialize State
+    const storedFolder = stama.get('currentFolder') || 'Inbox';
+    const storedMail = stama.get('currentMail') || mockDB.mails[storedFolder][0];
+    stama.set('currentFolder', storedFolder);
+    stama.set('currentMail', storedMail);
+
+    // Save the entire mail structure to the state
+    stama.set('mails', mockDB.mails);
+
+    // Populate Folders
+    const folderList = document.getElementById('folderList');
+
+    mockDB.folders.forEach(folder => {
+      const li = document.createElement('button');
+      li.textContent = folder;
+      li.classList.add('cursor-pointer', 'hover:bg-gray-100', 'py-2', 'px-4', 'rounded', 'block', 'w-full', 'text-left');
+      li.addEventListener('click', () => {
+        folderList.querySelectorAll('button').forEach((li) => { li.classList.remove('bg-gray-100') });
+        stama.set('currentFolder', folder);
+        li.classList.add('bg-gray-100');
+        const mails = stama.get('mails')[folder];
+        if (mails && mails.length > 0) {
+          stama.set('currentMail', mails[0]);
+        } else {
+          stama.set('currentMail', null);
+        }
+      });
+      folderList.appendChild(li);
+    });
+
+    // Populate Mails
+    const mailList = document.getElementById('mailList');
+    const populateMails = (folder) => {
+      mailList.innerHTML = '';
+      const mails = stama.get('mails')[folder];
+      mails.forEach(mail => {
+        const li = document.createElement('button');
+        li.textContent = mail.subject;
+        li.classList.add('cursor-pointer', 'hover:bg-gray-100', 'py-2', 'px-4', 'rounded', 'block', 'w-full', 'text-left');
+        li.addEventListener('click', () => {
+          mailList.querySelectorAll('button').forEach((li) => { li.classList.remove('bg-gray-100') });
+          stama.set('currentMail', mail);
+          li.classList.add('bg-gray-100');
+        });
+        mailList.appendChild(li);
+      });
+    };
+
+    // Show Mail Content
+    const mailContent = document.getElementById('mailContent');
+    const showMailContent = (mail) => {
+      mailContent.innerHTML = mail ? mail.content : `<span class="bg-red-100 rounded border-red-500 border px-4 py-2 block w-full">No mail selected.</span>`;
+    };
+
+    // Subscribe to state changes
+    stama.subscribe('currentFolder', (folder) => {
+      populateMails(folder);
+    });
+
+    stama.subscribe('currentMail', (mail) => {
+      showMailContent(mail);
+    });
+
+    // Handle Drafts
+    const draftContent = document.getElementById('draftContent');
+    const saveDraft = document.getElementById('saveDraft');
+    const undoButton = document.getElementById('undo');
+    const redoButton = document.getElementById('redo');
+
+    saveDraft.addEventListener('click', () => {
+      const currentFolder = stama.get('currentFolder');
+      const currentMail = stama.get('currentMail');
+      const draftText = draftContent.value;
+
+      if (currentMail && draftText) {
+        const updatedMail = { ...currentMail, content: draftText };
+        const mails = { ...stama.get('mails') };
+        const mailIndex = mails[currentFolder].findIndex(mail => mail.id === currentMail.id);
+        mails[currentFolder][mailIndex] = updatedMail;
+
+        stama.batchSet({
+          mails,
+          currentMail: updatedMail
+        });
+
+        draftContent.value = '';
+        console.log('Draft saved.');
+      }
+    });
+
+    undoButton.addEventListener('click', () => {
+      stama.undo();
+      console.log('Undo performed.');
+    });
+
+    redoButton.addEventListener('click', () => {
+      stama.redo();
+      console.log('Redo performed.');
+    });
+
+    // Initialize the UI with the stored state
+    const initUI = () => {
+      const currentFolder = stama.get('currentFolder');
+      const currentMail = stama.get('currentMail');
+
+      // Highlight the current folder
+      const folderButtons = folderList.querySelectorAll('button');
+      folderButtons.forEach(button => {
+        if (button.textContent === currentFolder) {
+          button.classList.add('bg-gray-100');
+        } else {
+          button.classList.remove('bg-gray-100');
+        }
+      });
+
+      // Populate the mail list and highlight the current mail
+      if (currentFolder) {
+        populateMails(currentFolder);
+        const mailButtons = mailList.querySelectorAll('button');
+        mailButtons.forEach(button => {
+          if (button.textContent === (currentMail ? currentMail.subject : '')) {
+            button.classList.add('bg-gray-100');
+          } else {
+            button.classList.remove('bg-gray-100');
+          }
+        });
+      }
+
+      // Show the content of the current mail
+      showMailContent(currentMail);
+    };
+
+    // Initialize the UI on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      initUI();
+    });
+  </script>
+</body>
+
+</html>
