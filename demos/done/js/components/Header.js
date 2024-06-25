@@ -7,7 +7,7 @@ export function Header() {
   return `
     <header>
       <h1>${stama.get('appName')}</h1>
-      <p>Welcome Home ${stama.get('userFirstName')} ${stama.get('userLastName')}</p>
+      <p>Welcome Home <span id="userFirstName">${stama.get('userFirstName')}</span> ${stama.get('userLastName')}</p>
     </header>
   `
 }

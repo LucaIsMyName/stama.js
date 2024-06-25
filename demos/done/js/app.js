@@ -42,7 +42,7 @@ export let db = {
         {
           id: 2,
           blockType: 'text',
-          blockTypeVariant: 'text',
+          blockTypeVariant: 'paragraph',
           content: 'This is the second post',
         }
       ],
