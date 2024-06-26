@@ -1,5 +1,7 @@
 import stama from '../../../js/stama.js';
 import { Ui } from './components/Ui.js';
+
+import { changeUserFirstName } from './functions/changeUserFirstName.js';
 // Set `stama` to persistence by enabling local storage
 stama.setPersist(true);
 
@@ -57,13 +59,13 @@ stama.set('userFirstName', db.user.firstName);
 stama.set('userLastName', db.user.lastName);
 stama.set('userMail', db.user.mail);
 stama.set('userId', db.user.id);
-stama.set('userColorTheme', db.user.colorTheme);
+stama.set('colorTheme', db.user.colorTheme);
 
 // Initial Open Page
 stama.set('currentPage', db.content[0].id);
 
 // Initial Section inside the Page to Scroll to on DOM Load
-stama.set('currentPageSectionId', db.content[1].body[0].id);
+stama.set('currentPageSectionId', db.content[0].body[0].id);
 
 stama.set('appName', db.app.name);
 stama.set('appVersion', db.app.version);

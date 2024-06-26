@@ -3,43 +3,79 @@ import { db } from '../app.js'
 
 import { Header } from './Header.js'
 import { Main } from './Main.js'
+import { Profile } from './Profile.js'
 
+import { changeUserFirstName } from '../functions/changeUserFirstName.js';
 
 /**
  * Ui component rendering the Header, Main, and a button.
  * @returns {string} The HTML string for the UI.
  */
-export function Ui() {
+export function Ui(
+  colorTheme = db.user.colorTheme || 'light',
+) {
   return `
-  ${Header()}
-  ${Main()}
-  <button id="changeUserFirstName">Change Something</button>
+  <section data-ui-wrapper data-color="${colorTheme}">
+    ${Header()}
+    ${Main()}
+    <button id="changeUserFirstName">Change First Name</button>
+    <button id="changeColorTheme">Change Color Theme </button>
+    ${Profile()}
+  </section>
   `
 }
 
 /**
- * Callback function to handle changes to the userFirstName state.
+ * @name updateAllStateInstances
+ * @param {string} key 
+ * @returns {void}
  */
-function changeUserFirstName() {
-  document.querySelectorAll('#userFirstName').forEach(element => {
-    element.textContent = stama.get('userFirstName');
-  }
-  );
+
+function updateAllStateInstances(key) {
+  document.querySelectorAll(`[data-state-key="${key}"]`).forEach(element => {
+    element.innerHTML = stama.get(key);
+  });
 }
 
-// This should be called after the UI has been rendered.
+function changeColorTheme() {
+  updateAllStateInstances('colorTheme');
+}
+
+// Manage the State
+
 document.addEventListener('DOMContentLoaded', () => {
   const button = document.getElementById('changeUserFirstName');
-
   if (button) {
     button.addEventListener('click', () => {
       stama.set('userFirstName', 'Jane');
-      console.log(stama.get('userFirstName'));
     });
   }
-
   stama.subscribe('userFirstName', () => {
-    changeUserFirstName();
+    updateAllStateInstances('userFirstName');
+  });
+
+
+
+  const colorThemeButton = document.getElementById('changeColorTheme');
+  if (colorThemeButton) {
+    colorThemeButton.addEventListener('click', () => {
+      if (stama.get('colorTheme') === 'dark') {
+        stama.set('colorTheme', 'light');
+        stama.setToLocalStorage();
+      } else {
+        stama.set('colorTheme', 'dark');
+        stama.setToLocalStorage();
+      }
+    });
+  }
+  stama.subscribe('colorTheme', () => {
+    const uiWrapper = document.querySelector('[data-ui-wrapper]');
+    const colorTheme = stama.get('colorTheme');
+    if (colorTheme) {
+      uiWrapper.setAttribute('data-color', colorTheme);
+    }
+
+    updateAllStateInstances('colorTheme');
   });
 
 });
