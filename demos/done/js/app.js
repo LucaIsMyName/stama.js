@@ -54,6 +54,18 @@ export let db = {
   ]
 }
 
+/**
+ * @name updateAllStateInstances
+ * @param {string} key 
+ * @returns {void} 
+ */
+
+export function updateAllStateInstances(key) {
+  document.querySelectorAll(`[data-state-key="${key}"]`).forEach(element => {
+    element.innerHTML = stama.get(key);
+  });
+}
+
 // User Data State
 stama.set('userFirstName', db.user.firstName);
 stama.set('userLastName', db.user.lastName);
