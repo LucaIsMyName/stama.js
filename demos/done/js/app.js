@@ -1,7 +1,9 @@
 import stama from '../../../js/stama.js';
+import { updateAllStateInstances } from './functions/updateAllStateInstances.js';
 import { Ui } from './components/Ui.js';
 
-import { changeUserFirstName } from './functions/changeUserFirstName.js';
+export { stama, updateAllStateInstances }
+
 // Set `stama` to persistence by enabling local storage
 stama.setPersist(true);
 
@@ -26,8 +28,8 @@ export let db = {
           content: 'This is the first post',
         }
       ],
-      publishTime: '2020-01-01',
-      editTime: '2020-01-01'
+      publishTime: { day: '2020-01-01', time: '20:32:23' },
+      editTime: { day: '2023-05-01', time: '13:21:53' }
     },
     {
       id: 2,
@@ -48,22 +50,10 @@ export let db = {
           content: 'This is the second post',
         }
       ],
-      publishTime: '2022-01-01',
-      editTime: '2023-03-12'
+      publishTime: { day: '2021-03-07', time: '10:47:23' },
+      editTime: { day: '2023-03-12', time: '13:21:53' }
     }
   ]
-}
-
-/**
- * @name updateAllStateInstances
- * @param {string} key 
- * @returns {void} 
- */
-
-export function updateAllStateInstances(key) {
-  document.querySelectorAll(`[data-state-key="${key}"]`).forEach(element => {
-    element.innerHTML = stama.get(key);
-  });
 }
 
 // User Data State
@@ -83,14 +73,68 @@ stama.set('appName', db.app.name);
 stama.set('appVersion', db.app.version);
 stama.set('appDescription', db.app.description);
 
-
-// Initial User Color Theme
-
-// Initial User Mail
-
-
 // Append App to HTML
 
 document.querySelector('#app').innerHTML = `${Ui()}`;
 
-console.log(stama.get('state'));
+/**
+ * Interactions and State Management
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  /** Handle User Profile Changes */
+  const changeUserDataForm = document.getElementById('changeUserDataForm');
+  if (changeUserDataForm) {
+    changeUserDataForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(changeUserDataForm);
+      console.log(formData);
+      const userFirstName = formData.get('userFirstName');
+      const userLastName = formData.get('userLastName');
+      const userMail = formData.get('userMail');
+      stama.set('userFirstName', userFirstName);
+      stama.set('userLastName', userLastName);
+      stama.set('userMail', userMail);
+    });
+  }
+  stama.subscribe('userFirstName', () => { updateAllStateInstances('userFirstName') });
+  stama.subscribe('userLastName', () => { updateAllStateInstances('userLastName') });
+  stama.subscribe('userMail', () => { updateAllStateInstances('userMail') });
+
+  // Change User colorTheme and update all State Instances
+  const colorThemeButton = document.getElementById('changeColorTheme');
+  if (colorThemeButton) {
+    colorThemeButton.addEventListener('click', () => {
+      if (stama.get('colorTheme') === 'dark') {
+        stama.set('colorTheme', 'light');
+        stama.setToLocalStorage();
+      } else {
+        stama.set('colorTheme', 'dark');
+        stama.setToLocalStorage();
+      }
+    });
+  }
+  stama.subscribe('colorTheme', () => {
+    const uiWrapper = document.querySelector('[data-ui-wrapper]');
+    const colorTheme = stama.get('colorTheme');
+    if (colorTheme) {
+      uiWrapper.setAttribute('data-color', colorTheme);
+    }
+    updateAllStateInstances('colorTheme');
+  });
+
+  stama.batchSubscribe([
+    'colorTheme',
+    'userFirstName',
+  ], () => {
+    console.log('Test Batch Subscribe')
+  })
+
+  stama.getAllKeys().map(key => {
+    console.log(key);
+  });
+
+  // stama.clear()
+
+});

@@ -1,5 +1,4 @@
-import stama from '../../../../js/stama.js';
-import { db } from '../app.js'
+import { stama, db, updateAllStateInstances } from '../app.js'
 
 export function Main() {
   return `

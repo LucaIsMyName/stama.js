@@ -136,6 +136,18 @@ class stama {
   }
 
   /**
+   * 
+   * @param {Array<string>} keys 
+   * @param {Function} callback 
+   */
+
+  batchSubscribe(keys, callback) {
+    keys.forEach((key) => {
+      this.subscribe(key, callback);
+    });
+  }
+
+  /**
    * Unsubscribe from changes of a specific state key
    * @param {string} key - The state key
    * @param {function} callback - The callback function to be removed

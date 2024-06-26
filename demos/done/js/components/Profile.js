@@ -1,5 +1,4 @@
-import stama from '../../../../js/stama.js';
-import { db } from '../app.js'
+import { stama, db, updateAllStateInstances } from '../app.js'
 
 export function Profile() {
 
@@ -14,8 +13,8 @@ export function Profile() {
     <div>
         <p><span data-state-key="userFirstName">${user.firstName}</span> 
         <span data-state-key="userLastName">${user.lastName}</span></p>
-        <p data-state-key="userLastName">${user.id}</p>
-        <p data-state-key="userLastName">${user.mail}</p>
+        <p data-state-key="userId">${user.id}</p>
+        <p data-state-key="userMail">${user.mail}</p>
     </div>
   `
 }
