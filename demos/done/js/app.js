@@ -135,6 +135,4 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(key);
   });
 
-  // stama.clear()
-
 });

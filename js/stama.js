@@ -25,6 +25,14 @@ class stama {
    * @returns {*} The value of the state
    */
   get(key) {
+    if (this.state[key] === undefined) {
+      console.warn(`State key "${key}" not found`);
+    }
+
+    if (this.getFromLocalStorage(key) !== null) {
+      this.state = this.getFromLocalStorage();
+    }
+    
     return this.state[key];
   }
 
