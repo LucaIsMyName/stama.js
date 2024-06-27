@@ -132,13 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(key);
   });
 
-  stama.setMany(
-    {
-      userFirstName: 'JaJAJJAne',
-      userLastName: 'D++++oe',
-      userMail: 'tralalalala',
-    }
-  );
+  // stama.setMany(
+  //   {
+  //     userFirstName: 'JaJAJJAne',
+  //     userLastName: 'D++++oe',
+  //     userMail: 'tralalalala',
+  //   }
+  // );
 
   console.log(stama.get('userFirstName'))
   console.log(stama.get('userLastName'))
