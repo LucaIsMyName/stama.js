@@ -1,20 +1,23 @@
-import { stama, db, updateAllStateInstances } from '../app.js'
+import { stama } from '../app.js';
 
 export function Profile() {
-
-  let user = {
-    firstName: stama.get('userFirstName'),
-    lastName: stama.get('userLastName'),
-    mail: stama.get('userMail'),
-    id: stama.get('userId'),
-  }
+  let listen = key => { stama.listen(key) };
+  const user = {
+    firstName: stama.listen('userFirstName'),
+    lastName: stama.listen('userLastName'),
+    mail: stama.listen('userMail'),
+    id: stama.listen('userId'),
+  };
 
   return `
     <div>
-        <p><span data-state-key="userFirstName">${user.firstName}</span> 
-        <span data-state-key="userLastName">${user.lastName}</span></p>
-        <p data-state-key="userId">${user.id}</p>
-        <p data-state-key="userMail">${user.mail}</p>
+        <p>
+            ${user.firstName} 
+            ${user.lastName}
+        </p>
+        <p>${user.id}</p>
+        <p>${user.mail}</p>
     </div>
-  `
+  `;
+
 }

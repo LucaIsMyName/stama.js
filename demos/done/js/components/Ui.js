@@ -12,7 +12,7 @@ export function Ui(
   colorTheme = db.user.colorTheme || 'light',
 ) {
   return `
-  <section data-ui-wrapper data-color="${colorTheme}">
+  <section data-ui-wrapper data-color="${stama.listen('colorTheme'), stama.get('colorTheme')}">
     ${Header()}
     ${Main()}
     ${Profile()}
@@ -23,7 +23,7 @@ export function Ui(
       <button type="submit">Change First Name</button>
     </form>
     <button id="changeColorTheme">Change Color Theme </button>
-    <p>Current Color Theme: <span data-state-key="colorTheme">${colorTheme}</span></p>
+    <p>Current Color Theme: <span data-state-key="colorTheme">${stama.listen('colorTheme')}</span></p>
   </section>
   `
 }

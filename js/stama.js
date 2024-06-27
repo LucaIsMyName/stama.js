@@ -14,6 +14,7 @@ class stama {
     this.debugMode = false;
     this.history = []; // Array to store state history
     this.historyIndex = -1; // Index to track current state in history
+    this.elements = new Map(); // Map to track elements and their keys
     if (this.debugMode) {
       console.log('stama initialized', this.state);
     }
@@ -32,9 +33,10 @@ class stama {
     if (this.getFromLocalStorage(key) !== null) {
       this.state = this.getFromLocalStorage();
     }
-    
+
     return this.state[key];
   }
+
 
   /**
    * Set the value of a state and notify listeners, and add to history
@@ -65,6 +67,61 @@ class stama {
     // Notify listeners
     if (this.listeners[key]) {
       this.listeners[key].forEach((callback) => callback(value));
+    }
+  }
+
+  /**
+ /**
+   * Subscribe to changes of a specific state key and update the element when the state changes
+   * @param {string} key - The state key
+   * @param {HTMLElement} element - The DOM element to update
+   * @returns {string}  The current value of the state key wrappen in a span element with a unique State Instance ID
+   * @description 
+   * listen to state changes and update the element automatically, 
+   * this method should be used when the value changed is a Inner 
+   * HTML Element and visible in the DOM (returns the value wrappen 
+   * in a <span> element).
+   * use the subscribe('') method if you want to change attributes dynamically
+   */
+  listen(key) {
+    // Ensure the key exists in the state
+    if (this.state[key] === undefined) {
+      console.warn(`State key "${key}" not found`);
+      return `{{${key}}}`;
+    }
+
+    // Generate a unique placeholder ID
+    const placeholderId = `stama-${key}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Store the element reference in the map
+    if (!this.elements.has(key)) {
+      this.elements.set(key, []);
+    }
+    this.elements.get(key).push(placeholderId);
+
+    // Subscribe to changes for the key
+    this.subscribe(key, (newValue) => {
+      this.updateElements(key, newValue);
+    });
+
+    // Return the placeholder for the element
+    return `<span id="${placeholderId}">${this.get(key)}</span>`;
+  }
+
+  /**
+   * Update the elements associated with a state key
+   * @param {string} key - The state key
+   * @param {*} newValue - The new value of the state key
+   */
+  updateElements(key, newValue) {
+    if (this.elements.has(key)) {
+      const elements = this.elements.get(key);
+      elements.forEach(placeholderId => {
+        const element = document.getElementById(placeholderId);
+        if (element) {
+          element.innerText = newValue;
+        }
+      });
     }
   }
 
@@ -135,6 +192,9 @@ class stama {
    * Subscribe to changes of a specific state key
    * @param {string} key - The state key
    * @param {function} callback - The callback function to be called when the state changes
+   * @returns {void}
+   * @description
+   * subscribe to state changes and update the App or UI with the callback function
    */
   subscribe(key, callback) {
     if (!this.listeners[key]) {
@@ -147,9 +207,12 @@ class stama {
    * 
    * @param {Array<string>} keys 
    * @param {Function} callback 
+   * @returns {void}
+   * @description
+   * subscribe 1 or more state key changes to a callback function
    */
 
-  batchSubscribe(keys, callback) {
+  subscribeMany(keys, callback) {
     keys.forEach((key) => {
       this.subscribe(key, callback);
     });
@@ -159,6 +222,9 @@ class stama {
    * Unsubscribe from changes of a specific state key
    * @param {string} key - The state key
    * @param {function} callback - The callback function to be removed
+   * @returns {void}
+   * @description
+   * unsubscribe from state changes and remove the callback function
    */
   unsubscribe(key, callback) {
     if (this.listeners[key]) {
@@ -171,6 +237,9 @@ class stama {
   /**
    * Unsubscribe all listeners from a specific state key
    * @param {string} key - The state key
+   * @returns {void}
+   * @description
+   * unsubscribe all listeners from state changes
    */
   unsubscribeAll(key) {
     if (this.listeners[key]) {
@@ -180,6 +249,10 @@ class stama {
 
   /**
    * Save the current state to local storage
+   * @param {string} itemName - The name of the local storage item
+   * @returns {void}
+   * @description
+   * save the current state to local storage
    */
   setToLocalStorage(itemName = 'stama') {
     localStorage.setItem(itemName, JSON.stringify(this.state));
@@ -188,6 +261,8 @@ class stama {
   /**
    * Load the state from local storage
    * @returns {Object|null} The state object or null if not found
+   * @description
+   * load the state from local storage
    */
   getFromLocalStorage(itemName = 'stama') {
     const state = localStorage.getItem(itemName);
@@ -197,6 +272,10 @@ class stama {
   /**
    * Reset the state to an initial value or clear it
    * @param {Object} initialState - The initial state to reset to
+   * @param {string} fromLocalStoreObject - The local storage object to reset from
+   * @returns {void}
+   * @description
+   * reset the state to an initial value or clear it
    */
   reset(initialState = {}, fromLocalStoreObject = 'stama') {
     this.state = initialState;
@@ -215,8 +294,11 @@ class stama {
   /**
    * Update multiple state keys at once
    * @param {Object} updates - An object containing the state keys and their new values
+   * @returns {void}
+   * @description
+   * update multiple state keys at once
    */
-  batchSet(updates) {
+  setMany(updates) {
     for (const key in updates) {
       if (updates.hasOwnProperty(key)) {
         this.set(key, updates[key]);
@@ -395,8 +477,6 @@ class stama {
   setPersist(enable) {
     this.persist = enable;
   }
-
-
 }
 
 export default new stama();

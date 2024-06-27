@@ -125,7 +125,7 @@
       }
 
       tasks.push(taskInput.value);
-      stama.batchSet({ 'tasks': tasks, 'history': [] });
+      stama.setMany({ 'tasks': tasks, 'history': [] });
       taskInput.value = '';
     };
 
@@ -134,7 +134,7 @@
       const history = stama.get('history');
       if (history.length > 0) {
         const tasks = history.pop();
-        stama.batchSet({ 'tasks': tasks, 'history': history });
+        stama.setMany({ 'tasks': tasks, 'history': history });
       }
     };
 
@@ -143,7 +143,7 @@
       const history = stama.get('history');
       if (history.length > 0) {
         const tasks = history[history.length - 1];
-        stama.batchSet({ 'tasks': tasks, 'history': history });
+        stama.setMany({ 'tasks': tasks, 'history': history });
         console.log('Redo:', tasks);
       }
     };

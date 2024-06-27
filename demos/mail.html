@@ -128,7 +128,7 @@
         const mailIndex = mails[currentFolder].findIndex(mail => mail.id === currentMail.id);
         mails[currentFolder][mailIndex] = updatedMail;
 
-        stama.batchSet({
+        stama.setMany({
           mails,
           currentMail: updatedMail
         });

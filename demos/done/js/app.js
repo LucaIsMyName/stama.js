@@ -98,9 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
       stama.set('userMail', userMail);
     });
   }
-  stama.subscribe('userFirstName', () => { updateAllStateInstances('userFirstName') });
-  stama.subscribe('userLastName', () => { updateAllStateInstances('userLastName') });
-  stama.subscribe('userMail', () => { updateAllStateInstances('userMail') });
 
   // Change User colorTheme and update all State Instances
   const colorThemeButton = document.getElementById('changeColorTheme');
@@ -121,10 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (colorTheme) {
       uiWrapper.setAttribute('data-color', colorTheme);
     }
-    updateAllStateInstances('colorTheme');
+    // updateAllStateInstances('colorTheme');
   });
-
-  stama.batchSubscribe([
+  
+  stama.subscribeMany([
     'colorTheme',
     'userFirstName',
   ], () => {
@@ -134,5 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
   stama.getAllKeys().map(key => {
     console.log(key);
   });
+
+  stama.setMany(
+    {
+      userFirstName: 'JaJAJJAne',
+      userLastName: 'D++++oe',
+      userMail: 'tralalalala',
+    }
+  );
+
+  console.log(stama.get('userFirstName'))
+  console.log(stama.get('userLastName'))
+  console.log(stama.get('userMail'))
 
 });
