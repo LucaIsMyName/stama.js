@@ -297,6 +297,87 @@ stama.getFromHistory(index)
 ```
 Get a state from history
 
+## Example `Counter`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter</title>
+</head>
+
+<body>
+  <main>
+    <p id="countDisplay"></p>
+    <div>
+      <button id="incrementBtn">Increment</button>
+      <button id="decrementBtn">Decrement</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <p id="countClicked"></p>
+
+  </main>
+  <script type="module">
+    import stama from '../js/stama.js'; // Adjust the path based on your project structure
+
+    // Initialize Stama.js with local storage persistence
+    stama.setPersist(true);
+
+    // Initialize state
+    if (!stama.get('counter')) {
+      stama.set('counter', 0);
+    }
+
+    // DOM elements
+    const countDisplay = document.getElementById('countDisplay');
+    const incrementBtn = document.getElementById('incrementBtn');
+    const decrementBtn = document.getElementById('decrementBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const countClicked = document.getElementById('countClicked');
+
+    stama.set('counterClicked', 0);
+
+    // Function to render count
+    const renderCount = () => {
+      const count = stama.get('counter');
+      countDisplay.textContent = count;
+    };
+
+    // Subscribe to counter state changes
+    stama.subscribe('counter', renderCount);
+    stama.subscribe('counter', () => {
+      stama.set('counterClicked', stama.get('counterClicked') + 1);
+      countClicked.textContent = stama.get('counterClicked');
+    });
+
+    // Event listeners
+    incrementBtn.addEventListener('click', () => {
+      const counter = stama.get('counter');
+      stama.set('counter', counter + 1);
+    });
+
+    decrementBtn.addEventListener('click', () => {
+      const counter = stama.get('counter');
+      stama.set('counter', counter - 1);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stama.set('counter', 0);
+    });
+
+    // Initial render
+    renderCount();
+
+  </script>
+</body>
+
+</html>
+```
+
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
