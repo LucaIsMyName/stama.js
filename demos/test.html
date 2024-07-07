@@ -43,7 +43,7 @@
       ]
     );
     console.log(stama.get('testState'));
-    
+
     console.log('stama.undo() test:');
     stama.undo('testState');
     console.log(stama.get('testState'));
@@ -51,7 +51,7 @@
     console.log(stama.get('testState'));
     stama.undo('testState');
     console.log(stama.get('testState'));
-      
+
     console.log('stama.redo() test:');
     stama.redo('testState');
     console.log(stama.get('testState'));
@@ -71,7 +71,9 @@
       stama.getAllKeys(),
       '---',
       stama.getFromHistory(0)
-      );
+    );
+
+    
   </script>
 </body>
 

@@ -454,7 +454,7 @@ class stama {
   }
 
   /**
-   * @param {*} index 
+   * @param {number} index 
    * @returns 
    */
 

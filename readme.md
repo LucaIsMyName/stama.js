@@ -114,6 +114,24 @@ Set the value of a state and notify listeners.
 
 ```js
 /**
+ * @param {Array<string>} keys
+ * @param {any} value
+*/
+stama.setMany(keys, value)
+```
+Set the values of a state and notify listeners.
+
+
+```js
+/**
+ * @param {Object} newState
+ * */
+stama.merge(newState)
+```
+Merge the existing and the new State Object together
+
+```js
+/**
  * @param {string} key
  * @param {Function} callback
 */
@@ -123,12 +141,39 @@ Subscribe to changes of a specific state key.
 
 ```js
 /**
+ * @param {Array<string>} keys
+ * @param {Function} callback
+*/
+stama.subscribeMany(key, callback)
+```
+Subscribe to changes of a specific state keys (1 or more).
+
+```js
+/**
  * @param {string} key
  * @param {Function} callback
 */
 stama.unsubscribe(key, callback)
 ```
 Unsubscribe from changes of a specific state key.
+
+```js
+/**
+ * @param {Array<string>} keys
+ * @param {Function} callback
+*/
+stama.unsubscribeAll(keys, callback)
+```
+Unsubscribe from changes of a specific state keys.
+
+```js
+/**
+ * @param {string} key
+ * @param {Function} callback
+*/
+stama.listen(key)
+```
+Listen to any changes in a key and render a `<span>` element with id placeholderId and the value (For `element.innerHtml` only)
 
 ```js
 /**
@@ -169,6 +214,14 @@ stama.undo()
 Undo the last state change globally.
 
 ```js
+/**
+ * @param {string} key
+ * */
+stama.remove(key)
+```
+Remove the state key/value globally.
+
+```js
 stama.redo()
 ```
 Redo the last undone state change globally.
@@ -180,6 +233,17 @@ Redo the last undone state change globally.
 stama.use(middleware)
 ```
 Add a middleware function to intercept state changes.
+
+
+```js
+/**
+ * @param {string} key
+ * @param {any} value
+ * @note should not be used directly, it's an internal method, but in edge case can be accessed if needed
+*/
+stama.runMiddlewares(key, value)
+```
+run Middleware Functions
 
 ```js
 /**
@@ -195,14 +259,43 @@ stama.setToLocalStorage()
 Save the current state to local storage.
 
 ```js
+/**
+ * @param {string} itemName the name of the local storage item
+ * */
+stama.setPartToLocalStorage(itemName)
+```
+Save parts of the current state to local storage.
+
+```js
 stama.getFromLocalStorage()
 ```
 Load the state from local storage.
 
 ```js
+/**
+ * @param {string} itemName the name of the local storage item
+ * */
+stama.getPartFromLocalStorage(itemName)
+```
+Load parts of the state from local storage.
+
+```js
 stama.clear()
 ```
 Clear all state keys and values.
+
+```js
+stama.getPrevious()
+```
+Get the previous state.
+
+```js
+/**
+ * @param {number} index the index of the history
+ * */
+stama.getFromHistory(index)
+```
+Get a state from history
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
